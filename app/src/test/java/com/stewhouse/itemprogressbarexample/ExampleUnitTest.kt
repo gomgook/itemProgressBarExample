@@ -3,6 +3,7 @@ package com.stewhouse.itemprogressbarexample
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.stewhouse.itemprogressbar.ItemProgressBar
+import com.stewhouse.itemprogressbar.ItemProgressBarListener
 import org.junit.Test
 
 import org.junit.runner.RunWith
@@ -25,6 +26,12 @@ class ExampleUnitTest {
         val stringData = "test data"
         data.add(stringData)
 
-        itemProgressBar.constructProgressBar(data, null)
+        val listener = object : ItemProgressBarListener {
+            override fun onProgressFinished() {
+
+            }
+        }
+
+        itemProgressBar.initProgressBar(data, listener)
     }
 }
