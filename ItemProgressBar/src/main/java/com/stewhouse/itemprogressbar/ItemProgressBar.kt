@@ -6,9 +6,13 @@ import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.support.annotation.RequiresApi
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import com.stewhouse.itemprogressbar.utility.UIUtil
 import kotlinx.android.synthetic.main.layout_progress_bar.view.*
+import kotlinx.android.synthetic.main.layout_progress_item.view.*
+import java.util.zip.Inflater
 
 class ItemProgressBar : RelativeLayout {
     var listener: ItemProgressBarListener? = null
@@ -51,7 +55,7 @@ class ItemProgressBar : RelativeLayout {
     /**
      * Set ProgressBar UI.
      */
-    public fun initProgressBar(data: List<Any>, listener: ItemProgressBarListener?) {
+    fun initProgressBar(data: List<Any>, listener: ItemProgressBarListener?) {
         if (itemLayout.childCount > 0) itemLayout.removeAllViews()
 
         maxPosition = data.size
@@ -60,28 +64,49 @@ class ItemProgressBar : RelativeLayout {
         when {
             data.isEmpty() -> return
             data.size == 1 -> initSingleItem()
-            else -> initItems()
+            else -> initItems(data)
         }
 
-        initLastItem()
+        initLastItem(data[maxPosition - 1])
     }
 
     private fun initSingleItem() {
         itemLayout.visibility = View.GONE
 
-        val layoutParams: RelativeLayout.LayoutParams = lastItemView.layoutParams as LayoutParams
+        val layoutParams: LayoutParams = lastItemView.layoutParams as LayoutParams
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) layoutParams.addRule(ALIGN_PARENT_END, 0)
         layoutParams.addRule(ALIGN_PARENT_RIGHT, 0)
         layoutParams.addRule(ALIGN_PARENT_LEFT, TRUE)
-        layoutParams.leftMargin = UIUtil.dpToPx(context, 12f).toInt()
     }
 
-    private fun initItems() {
-        // TODO: add progress items
+    private fun initItems(data: List<Any>) {
+        itemLayout.weightSum = (maxPosition - 1).toFloat()
+        lastItemView.visibility = View.VISIBLE
+
+        val layoutParams: LayoutParams = itemLayout.layoutParams as LayoutParams
+
+        layoutParams.addRule(LEFT_OF, lastItemView.id)
+        constructItems(data)
     }
 
-    private fun initLastItem() {
+    private fun constructItems(dataList: List<Any>) {
+        for (i in 0 until maxPosition - 1) {
+            itemLayout.addView(inflateChildView(dataList[i]))
+        }
+    }
 
+    private fun inflateChildView(data: Any): View {
+        val childView = View.inflate(context, R.layout.layout_progress_item_with_line, null)
+        val layoutParams: LinearLayout.LayoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1F)
+
+        childView.layoutParams = layoutParams
+        childView.text.text = data as String
+
+        return childView
+    }
+
+    private fun initLastItem(data: Any) {
+        lastItemView.text.text = data as String
     }
 }

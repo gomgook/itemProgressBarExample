@@ -13,8 +13,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val data: ArrayList<Any> = ArrayList()
-        val stringData = "12"
-        data.add(stringData)
+
+        data.add("40")
+        data.add("10")
+        data.add("20")
+        data.add("30")
+        data.add("50")
+        data.add("60")
+        data.add("80")
 
         val listener = object : ItemProgressBarListener {
             override fun onProgressFinished() {
