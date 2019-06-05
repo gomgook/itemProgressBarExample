@@ -61,7 +61,7 @@ class ItemProgressBar : RelativeLayout {
         layoutParams.addRule(ALIGN_PARENT_RIGHT, 0)
         layoutParams.addRule(ALIGN_PARENT_LEFT, TRUE)
 
-        adapter?.initChildView(lastItemView)
+        adapter?.initChildView(lastItemView, 0)
     }
 
     private fun initMultipleItems() {
@@ -87,11 +87,8 @@ class ItemProgressBar : RelativeLayout {
                 parentView.layoutParams = parentLayoutParams
                 parentView.orientation = LinearLayout.HORIZONTAL
 
-                it.initChildView(parentView)
-                val lineView = it.initLineView(parentView)
-                val lineViewLayoutParams: LinearLayout.LayoutParams = lineView?.layoutParams as LinearLayout.LayoutParams
-
-                lineViewLayoutParams.gravity = CENTER_VERTICAL
+                it.initChildView(parentView, i)
+                it.initLineView(parentView, i)
 
                 itemLayout.addView(parentView)
             }
@@ -99,6 +96,8 @@ class ItemProgressBar : RelativeLayout {
     }
 
     private fun setLastView() {
-        adapter?.initChildView(lastItemView)
+        adapter?.let {
+            it.initChildView(lastItemView, it.getItemCount() - 1)
+        }
     }
 }

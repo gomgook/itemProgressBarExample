@@ -6,11 +6,11 @@ import android.view.ViewGroup
 open class ItemProgressBarAdapter {
     lateinit var view: ItemProgressBar
 
-    open fun initChildView(container: ViewGroup): View? {
+    open fun initChildView(container: ViewGroup, position: Int): View? {
         return null
     }
 
-    open fun initLineView(container: ViewGroup): View? {
+    open fun initLineView(container: ViewGroup, position: Int): View? {
         return null
     }
 
