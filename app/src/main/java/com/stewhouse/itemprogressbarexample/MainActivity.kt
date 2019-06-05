@@ -2,8 +2,6 @@ package com.stewhouse.itemprogressbarexample
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.view.ViewPager
-import com.stewhouse.itemprogressbar.ItemProgressBarAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
 
@@ -15,15 +13,14 @@ class MainActivity : AppCompatActivity() {
 
         val data: ArrayList<String> = ArrayList()
 
-        data.add("40")
-        data.add("10")
-        data.add("30")
-        data.add("20")
-        data.add("50")
+        data.add("1")
+        data.add("2")
+        data.add("3")
 
         val adapter = CustomItemProgressBarAdapter(this)
 
         adapter.data = data
         itemProgressBar.adapter = adapter
+        itemProgressBar.currentProgress = 3
     }
 }
