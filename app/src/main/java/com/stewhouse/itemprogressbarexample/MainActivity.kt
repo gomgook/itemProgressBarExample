@@ -2,7 +2,8 @@ package com.stewhouse.itemprogressbarexample
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.stewhouse.itemprogressbar.ItemProgressBarListener
+import android.support.v4.view.ViewPager
+import com.stewhouse.itemprogressbar.ItemProgressBarAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
 
@@ -12,22 +13,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val data: ArrayList<Any> = ArrayList()
+        val data: ArrayList<String> = ArrayList()
 
         data.add("40")
         data.add("10")
-        data.add("20")
         data.add("30")
+        data.add("20")
         data.add("50")
-        data.add("60")
-        data.add("80")
 
-        val listener = object : ItemProgressBarListener {
-            override fun onProgressFinished() {
+        val adapter = CustomItemProgressBarAdapter(this)
 
-            }
-        }
-
-        itemProgressBar.initProgressBar(data, listener)
+        adapter.data = data
+        itemProgressBar.adapter = adapter
     }
 }

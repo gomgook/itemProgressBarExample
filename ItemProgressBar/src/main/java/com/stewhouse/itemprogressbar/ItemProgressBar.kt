@@ -9,35 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import com.stewhouse.itemprogressbar.utility.UIUtil
 import kotlinx.android.synthetic.main.layout_progress_bar.view.*
-import kotlinx.android.synthetic.main.layout_progress_item.view.*
-import java.util.zip.Inflater
 
 class ItemProgressBar : RelativeLayout {
-    var listener: ItemProgressBarListener? = null
+    var adapter: ItemProgressBarAdapter? = null
         set(value) {
-            if (value == null) throw Throwable("ItemProgressBarListener is null.")
-
             field = value
-        }
 
-    // position starts with 1.
-    private var currentPosition = Int.MIN_VALUE
-        set(value) {
-            if (value < 1) throw Throwable("Current position should start with 1.")
-
-            field = value
-        }
-    private var maxPosition = Int.MIN_VALUE
-        set(value) {
-            if (value < 1) throw Throwable("Max position should start with 1.")
-
-            field = value
+            field?.view = this
+            field?.notifyDataSetChanged()
         }
 
     init {
         View.inflate(context, R.layout.layout_progress_bar, this)
+
+        if (itemLayout.childCount > 0) itemLayout.removeAllViews()
     }
 
     constructor(context: Context?) : super(context)
@@ -52,22 +38,18 @@ class ItemProgressBar : RelativeLayout {
         defStyleRes
     )
 
-    /**
-     * Set ProgressBar UI.
-     */
-    fun initProgressBar(data: List<Any>, listener: ItemProgressBarListener?) {
-        if (itemLayout.childCount > 0) itemLayout.removeAllViews()
+    override fun invalidate() {
+        constructItems()
 
-        maxPosition = data.size
-        this.listener = listener
+        super.invalidate()
+    }
 
-        when {
-            data.isEmpty() -> return
-            data.size == 1 -> initSingleItem()
-            else -> initItems(data)
+    private fun constructItems() {
+        when (adapter?.getItemCount()) {
+            0 -> return
+            1 -> initSingleItem()
+            else -> initMultipleItems()
         }
-
-        initLastItem(data[maxPosition - 1])
     }
 
     private fun initSingleItem() {
@@ -78,35 +60,45 @@ class ItemProgressBar : RelativeLayout {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) layoutParams.addRule(ALIGN_PARENT_END, 0)
         layoutParams.addRule(ALIGN_PARENT_RIGHT, 0)
         layoutParams.addRule(ALIGN_PARENT_LEFT, TRUE)
+
+        adapter?.initChildView(lastItemView)
     }
 
-    private fun initItems(data: List<Any>) {
-        itemLayout.weightSum = (maxPosition - 1).toFloat()
-        lastItemView.visibility = View.VISIBLE
+    private fun initMultipleItems() {
+        adapter?.let {
+            itemLayout.weightSum = (it.getItemCount() - 1).toFloat()
 
-        val layoutParams: LayoutParams = itemLayout.layoutParams as LayoutParams
+            val layoutParams: LayoutParams = itemLayout.layoutParams as LayoutParams
+            layoutParams.addRule(LEFT_OF, lastItemView.id)
 
-        layoutParams.addRule(LEFT_OF, lastItemView.id)
-        constructItems(data)
-    }
+            setChildViews()
+            setLastView()
 
-    private fun constructItems(dataList: List<Any>) {
-        for (i in 0 until maxPosition - 1) {
-            itemLayout.addView(inflateChildView(dataList[i]))
+            itemLayout.visibility = View.VISIBLE
         }
     }
 
-    private fun inflateChildView(data: Any): View {
-        val childView = View.inflate(context, R.layout.layout_progress_item_with_line, null)
-        val layoutParams: LinearLayout.LayoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1F)
+    private fun setChildViews() {
+        adapter?.let {
+            for (i in 0 until it.getItemCount() - 1) {
+                val parentView = LinearLayout(context)
+                val parentLayoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1F)
 
-        childView.layoutParams = layoutParams
-        childView.text.text = data as String
+                parentView.layoutParams = parentLayoutParams
+                parentView.orientation = LinearLayout.HORIZONTAL
 
-        return childView
+                it.initChildView(parentView)
+                val lineView = it.initLineView(parentView)
+                val lineViewLayoutParams: LinearLayout.LayoutParams = lineView?.layoutParams as LinearLayout.LayoutParams
+
+                lineViewLayoutParams.gravity = CENTER_VERTICAL
+
+                itemLayout.addView(parentView)
+            }
+        }
     }
 
-    private fun initLastItem(data: Any) {
-        lastItemView.text.text = data as String
+    private fun setLastView() {
+        adapter?.initChildView(lastItemView)
     }
 }
