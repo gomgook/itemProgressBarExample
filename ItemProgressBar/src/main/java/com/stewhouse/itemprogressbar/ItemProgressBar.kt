@@ -20,10 +20,18 @@ class ItemProgressBar : RelativeLayout {
             field?.notifyDataSetChanged()
         }
 
+    var currentProgress: Int = 0
+        set(value) {
+            field = value
+
+            invalidate()
+        }
+
+    var progressNextListener: ProgressListener? = null
+    var progressPrevListener: ProgressListener? = null
+
     init {
         View.inflate(context, R.layout.layout_progress_bar, this)
-
-        if (itemLayout.childCount > 0) itemLayout.removeAllViews()
     }
 
     constructor(context: Context?) : super(context)
@@ -39,9 +47,22 @@ class ItemProgressBar : RelativeLayout {
     )
 
     override fun invalidate() {
+        if (itemLayout.childCount > 0) itemLayout.removeAllViews()
+        if (lastItemView.childCount > 0) lastItemView.removeAllViews()
+
         constructItems()
 
         super.invalidate()
+    }
+
+    fun progressPrev() {
+        if (currentProgress > 0) currentProgress -= 1
+    }
+
+    fun progressNext() {
+        adapter?.let {
+            if (currentProgress < it.getItemCount()) currentProgress += 1
+        }
     }
 
     private fun constructItems() {
@@ -61,7 +82,11 @@ class ItemProgressBar : RelativeLayout {
         layoutParams.addRule(ALIGN_PARENT_RIGHT, 0)
         layoutParams.addRule(ALIGN_PARENT_LEFT, TRUE)
 
-        adapter?.initChildView(lastItemView, 0)
+        if (currentProgress == 1) {
+            adapter?.initChildView(lastItemView, 0, true)
+        } else {
+            adapter?.initChildView(lastItemView, 0, false)
+        }
     }
 
     private fun initMultipleItems() {
@@ -87,8 +112,20 @@ class ItemProgressBar : RelativeLayout {
                 parentView.layoutParams = parentLayoutParams
                 parentView.orientation = LinearLayout.HORIZONTAL
 
-                it.initChildView(parentView, i)
-                it.initLineView(parentView, i)
+                when {
+                    i < currentProgress - 1 -> {
+                        it.initChildView(parentView, i, true)
+                        it.initLineView(parentView, i, true)
+                    }
+                    i == currentProgress - 1 -> {
+                        it.initChildView(parentView, i, true)
+                        it.initLineView(parentView, i, false)
+                    }
+                    else -> {
+                        it.initChildView(parentView, i, false)
+                        it.initLineView(parentView, i, false)
+                    }
+                }
 
                 itemLayout.addView(parentView)
             }
@@ -97,7 +134,15 @@ class ItemProgressBar : RelativeLayout {
 
     private fun setLastView() {
         adapter?.let {
-            it.initChildView(lastItemView, it.getItemCount() - 1)
+            if (currentProgress == it.getItemCount()) {
+                it.initChildView(lastItemView, it.getItemCount() - 1, true)
+            } else {
+                it.initChildView(lastItemView, it.getItemCount() - 1, false)
+            }
         }
+    }
+
+    interface ProgressListener {
+        fun onProgress(currentView: View, nextView: View)
     }
 }
