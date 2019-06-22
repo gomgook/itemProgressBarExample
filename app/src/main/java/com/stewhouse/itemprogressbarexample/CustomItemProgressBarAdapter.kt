@@ -21,7 +21,7 @@ class CustomItemProgressBarAdapter(private val context: Context) : ItemProgressB
         view.text.text = data[position]
 
         if (isProgress) {
-            view.layout.background = ContextCompat.getDrawable(context, R.drawable.ic_item_bg_progress)
+            view.progressLayout.visibility = View.VISIBLE
         }
 
         return view

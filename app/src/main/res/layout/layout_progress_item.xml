@@ -12,4 +12,11 @@
               android:textStyle="bold"
               android:textColor="#828282"/>
 
+    <RelativeLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/ic_item_bg_progress"
+            android:visibility="gone"/>
+
 </RelativeLayout>
